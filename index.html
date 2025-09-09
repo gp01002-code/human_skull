@@ -82,8 +82,8 @@
         let vrInfoPanel;
         const clock = new THREE.Clock();
         const controllerStates = {
-            controller1: { intersectedObject: null, selectedObject: null, line: null, initialWorldRotation: new THREE.Quaternion() },
-            controller2: { intersectedObject: null, selectedObject: null, line: null, initialWorldRotation: new THREE.Quaternion() }
+            controller1: { intersectedObject: null, selectedObject: null, line: null, initialRotation: new THREE.Quaternion() },
+            controller2: { intersectedObject: null, selectedObject: null, line: null, initialRotation: new THREE.Quaternion() }
         };
         const draggableObjects = [];
         const bonesData = [];
@@ -110,37 +110,37 @@
         
         const masterScale = 0.012; 
         const referencePosition = new THREE.Vector3(0, 0.02, 0); 
-        const snapDistance = 0.05; // <-- 數值已從 0.025 放大到 0.05，更容易吸附
+        const snapDistance = 0.05; // 增加吸附距離，讓拼接更容易
         const VR_MOVEMENT_SPEED = 1.0; 
         const VR_ZOOM_SPEED = 1.0; 
 
         const correctTargetRot = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2);
 
-        // --- BONE LIST UPDATED: REMOVED ONE PARIETAL & CORRECTED ALL TARGET POSITIONS ---
+        // --- BONE LIST ---
         const boneDefinitions = [
             // Top Row
-            { id: 'parietal_l', name: '左頂骨', description: '構成顱頂和側面的骨骼。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/parietal_bone_01.stl', scale: masterScale, initialPos: new THREE.Vector3(0.15, 0.18, 0), targetPos: new THREE.Vector3(-0.012, 0.06, -0.01) },
-            { id: 'frontal', name: '額骨', description: '構成前額的骨骼。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/Frontal_bone.stl', scale: masterScale, initialPos: new THREE.Vector3(0, 0.20, 0.1), targetPos: new THREE.Vector3(0, 0.05, 0.03) },
-            { id: 'parietal_r', name: '右頂骨', description: '構成顱頂和側面的骨骼。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/parietal_bone_02.stl', scale: masterScale, initialPos: new THREE.Vector3(-0.15, 0.18, 0), targetPos: new THREE.Vector3(0.012, 0.06, -0.01) },
+            { id: 'parietal_l', name: '左頂骨', description: '構成顱頂和側面的骨骼。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/parietal_bone_01.stl', scale: masterScale, initialPos: new THREE.Vector3(0.15, 0.18, 0), targetPos: new THREE.Vector3(0.05, 0, 0) },
+            { id: 'frontal', name: '額骨', description: '構成前額的骨骼。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/Frontal_bone.stl', scale: masterScale, initialPos: new THREE.Vector3(0, 0.20, 0.1), targetPos: new THREE.Vector3(0, 0, 0) },
+            { id: 'parietal_r', name: '右頂骨', description: '構成顱頂和側面的骨骼。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/parietal_bone_02.stl', scale: masterScale, initialPos: new THREE.Vector3(-0.15, 0.18, 0), targetPos: new THREE.Vector3(-0.05, 0, 0) },
             
             // Middle Row
-            { id: 'temporal_l', name: '左顳骨', description: '位於顱骨兩側，保護聽覺器官。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/Temporal_bone01.stl', scale: masterScale, initialPos: new THREE.Vector3(0.25, 0.05, 0), targetPos: new THREE.Vector3(-0.035, 0.03, -0.01) },
-            { id: 'cheek_l', name: '左顴骨', description: '構成臉頰的突出部分。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/cheekbones_01.stl', scale: masterScale, initialPos: new THREE.Vector3(0.15, 0.02, 0.1), targetPos: new THREE.Vector3(-0.03, 0.02, 0.02) },
-            { id: 'maxilla_l', name: '左上頷骨', description: '構成上顎的主要部分。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/maxilla_01.stl', scale: masterScale, initialPos: new THREE.Vector3(0.1, -0.03, 0.15), targetPos: new THREE.Vector3(-0.015, 0.01, 0.02) },
+            { id: 'temporal_l', name: '左顳骨', description: '位於顱骨兩側，保護聽覺器官。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/Temporal_bone01.stl', scale: masterScale, initialPos: new THREE.Vector3(0.25, 0.05, 0), targetPos: new THREE.Vector3(0.10, 0.05, 0.1) },
+            { id: 'cheek_l', name: '左顴骨', description: '構成臉頰的突出部分。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/cheekbones_01.stl', scale: masterScale, initialPos: new THREE.Vector3(0.15, 0.02, 0.1), targetPos: new THREE.Vector3(0.10, 0.05, 0.1) },
+            { id: 'maxilla_l', name: '左上頷骨', description: '構成上顎的主要部分。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/maxilla_01.stl', scale: masterScale, initialPos: new THREE.Vector3(0.1, -0.03, 0.15), targetPos: new THREE.Vector3(0.05, -0.03, 0.15) },
             
-            { id: 'maxilla_r', name: '右上頷骨', description: '構成上顎的主要部分。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/maxilla_02.stl', scale: masterScale, initialPos: new THREE.Vector3(-0.1, -0.03, 0.15), targetPos: new THREE.Vector3(0.015, 0.01, 0.02) },
-            { id: 'cheek_r', name: '右顴骨', description: '構成臉頰的突出部分。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/cheekbones_02.stl', scale: masterScale, initialPos: new THREE.Vector3(-0.15, 0.02, 0.1), targetPos: new THREE.Vector3(0.03, 0.02, 0.02) },
-            { id: 'temporal_r', name: '右顳骨', description: '位於顱骨兩側，保護聽覺器官。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/Temporal_bone02.stl', scale: masterScale, initialPos: new THREE.Vector3(-0.25, 0.05, 0), targetPos: new THREE.Vector3(0.035, 0.03, -0.01) },
+            { id: 'maxilla_r', name: '右上頷骨', description: '構成上顎的主要部分。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/maxilla_02.stl', scale: masterScale, initialPos: new THREE.Vector3(-0.1, -0.03, 0.15), targetPos: new THREE.Vector3(-0.05, -0.03, 0.15) },
+            { id: 'cheek_r', name: '右顴骨', description: '構成臉頰的突出部分。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/cheekbones_02.stl', scale: masterScale, initialPos: new THREE.Vector3(-0.15, 0.02, 0.1), targetPos: new THREE.Vector3(-0.05, 0.15, 0.1) },
+            { id: 'temporal_r', name: '右顳骨', description: '位於顱骨兩側，保護聽覺器官。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/Temporal_bone02.stl', scale: masterScale, initialPos: new THREE.Vector3(-0.25, 0.05, 0), targetPos: new THREE.Vector3(-0.1, 0.05, 0.1) },
 
             // Back Row
-            { id: 'occipital', name: '枕骨', description: '構成顱骨的後部和底部。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/occipital_bone.stl', scale: masterScale, initialPos: new THREE.Vector3(0, -0.04, -0.2), targetPos: new THREE.Vector3(0, 0.04, -0.04) },
+            { id: 'occipital', name: '枕骨', description: '構成顱骨的後部和底部。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/occipital_bone.stl', scale: masterScale, initialPos: new THREE.Vector3(0, -0.04, -0.2), targetPos: new THREE.Vector3(0, -0.04, 0) },
             
             // Bottom Row
-            { id: 'mandible', name: '下頷骨', description: '構成下顎，是顱骨中唯一可動的骨骼。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/mandible.stl', scale: masterScale, initialPos: new THREE.Vector3(0, -0.15, 0.1), targetPos: new THREE.Vector3(0, -0.01, 0.02) },
+            { id: 'mandible', name: '下頷骨', description: '構成下顎，是顱骨中唯一可動的骨骼。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/mandible.stl', scale: masterScale, initialPos: new THREE.Vector3(0, -0.15, 0.1), targetPos: new THREE.Vector3(0, 0.15, 0.5) },
             
             // Inner Bones
-            { id: 'sphenoid', name: '蝶骨', description: '位於顱底中部，形狀像蝴蝶。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/sphenoid_bone.stl', scale: masterScale, initialPos: new THREE.Vector3(0.0, 0.20, -0.25), targetPos: new THREE.Vector3(0, 0.025, 0) },
-            { id: 'ethmoid', name: '篩骨', description: '位於兩眼眶之間，構成鼻腔頂部。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/ethmoid_bone.stl', scale: masterScale, initialPos: new THREE.Vector3(0.0, 0.10, -0.25), targetPos: new THREE.Vector3(0, 0.03, 0.015) },
+            { id: 'sphenoid', name: '蝶骨', description: '位於顱底中部，形狀像蝴蝶。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/sphenoid_bone.stl', scale: masterScale, initialPos: new THREE.Vector3(0.0, 0.35, -0.25), targetPos: new THREE.Vector3(0.0, -1, 0) },
+            { id: 'ethmoid', name: '篩骨', description: '位於兩眼眶之間，構成鼻腔頂部。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/ethmoid_bone.stl', scale: masterScale, initialPos: new THREE.Vector3(0.0, 0.25, -0.25), targetPos: new THREE.Vector3(0.0, 0.10, 1) },
         ];
         
         startButton.addEventListener('click', () => {
@@ -341,7 +341,7 @@
             if (state.intersectedObject && !state.intersectedObject.userData.placed) {
                 if (otherState.selectedObject !== state.intersectedObject) {
                     state.selectedObject = state.intersectedObject;
-                    state.selectedObject.getWorldQuaternion(state.initialWorldRotation);
+                    state.initialRotation.copy(state.selectedObject.quaternion);
                     controller.attach(state.selectedObject);
                     vibrate(controller, 0.3, 50);
                 }
@@ -368,7 +368,6 @@
                     vibrate(controller, 1.0, 200);
                 } else {
                     state.selectedObject.position.copy(state.selectedObject.userData.initialPos);
-                    state.selectedObject.quaternion.copy(correctTargetRot);
                     vibrate(controller, 0.2, 50);
                 }
                 state.selectedObject = null;
@@ -733,8 +732,8 @@
                 if (source.gamepad && source.handedness === 'right') {
                    const axes = source.gamepad.axes;
                     if (axes.length >= 4) {
-                       const dollyZ = Math.abs(axes[3]) > 0.1 ? axes[3] : 0;
-                        if (dollyZ !== 0) {
+                        const dollyZ = Math.abs(axes[3]) > 0.1 ? axes[3] : 0;
+                         if (dollyZ !== 0) {
                             const forward = new THREE.Vector3(0,0,-1).applyQuaternion(xrCamera.quaternion);
                             forward.y = 0;
                             forward.normalize();
@@ -753,20 +752,6 @@
             }
             
             if (renderer.xr.isPresenting) {
-                // --- NEW LOGIC TO LOCK BONE ROTATION DURING DRAG ---
-                for (const controllerName in controllerStates) {
-                    const state = controllerStates[controllerName];
-                    if (state.selectedObject) {
-                        const selected = state.selectedObject;
-                        const parent = selected.parent;
-                        if (parent) {
-                            const parentWorldInverse = parent.getWorldQuaternion(new THREE.Quaternion()).invert();
-                            const newLocalRotation = state.initialWorldRotation.clone().premultiply(parentWorldInverse);
-                            selected.quaternion.copy(newLocalRotation);
-                        }
-                    }
-                }
-
                 handleController(controller1, 'controller1');
                 handleController(controller2, 'controller2');
                 handleVRLocomotion(delta);
@@ -783,4 +768,6 @@
     </script>
 </body>
 </html>
+
+
 
