@@ -34,7 +34,8 @@
     <div id="loading-overlay" class="absolute inset-0 z-30 flex items-center justify-center bg-black bg-opacity-70 text-white">
         <p class="text-2xl">模型載入中...</p>
     </div>
-    <div id="start-screen" class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-gray-900 text-white text-center bg-cover bg-center" style="display: flex; background-image: url('https://cdn.jsdelivr.net/gh/gp01002-code/Skeleton-/background.jpg');">
+    <!-- Updated background image URL to user's GitHub file -->
+    <div id="start-screen" class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-gray-900 text-white text-center bg-cover bg-center" style="display: flex; background-image: url('https://cdn.jsdelivr.net/gh/gp01002-code/Skeleton-/YOUR_IMAGE_URL_HERE.jpg');">
         <div class="absolute inset-0 bg-black opacity-50"></div>
         <div class="relative z-10">
             <h1 class="text-5xl font-bold mb-4" style="text-shadow: 2px 2px 8px rgba(0,0,0,0.7);">3D Skull Puzzle Game</h1>
@@ -91,6 +92,7 @@
         let startTime = null;
         let timerInterval = null;
         
+        // Dragging variables
         const plane = new THREE.Plane();
         const offset = new THREE.Vector3();
         const intersection = new THREE.Vector3();
@@ -108,27 +110,32 @@
         
         const masterScale = 0.012; 
         const referencePosition = new THREE.Vector3(0, 0.02, 0); 
-        const snapDistance = 0.05;
+        const snapDistance = 0.05; // 增加吸附距離，讓拼接更容易
         const VR_MOVEMENT_SPEED = 1.0; 
         const VR_ZOOM_SPEED = 1.0; 
 
         const correctTargetRot = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2);
 
-        // --- Corrected Initial and Target Positions ---
+        // --- BONE LIST ---
         const boneDefinitions = [
-            { id: 'frontal',    name: '額骨',      description: '構成前額的骨骼。',   modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/Frontal_bone.stl',   scale: masterScale, initialPos: new THREE.Vector3(0.00, 0.20, 0.1),  targetPos: new THREE.Vector3(0.00, 0.11, 0.10) },
-            { id: 'parietal_l', name: '左頂骨',    description: '構成顱頂和側面的骨骼。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/parietal_bone_01.stl', scale: masterScale, initialPos: new THREE.Vector3(0.15, 0.18, 0),    targetPos: new THREE.Vector3(0.06, 0.11, -0.04) },
-            { id: 'parietal_r', name: '右頂骨',    description: '構成顱頂和側面的骨骼。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/parietal_bone_02.stl', scale: masterScale, initialPos: new THREE.Vector3(-0.15, 0.18, 0),  targetPos: new THREE.Vector3(-0.06, 0.11, -0.04) },
-            { id: 'temporal_l', name: '左顳骨',    description: '位於顱骨兩側，保護聽覺器官。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/Temporal_bone01.stl', scale: masterScale, initialPos: new THREE.Vector3(0.25, 0.05, 0),    targetPos: new THREE.Vector3(0.13, 0.04, -0.03) },
-            { id: 'temporal_r', name: '右顳骨',    description: '位於顱骨兩側，保護聽覺器官。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/Temporal_bone02.stl', scale: masterScale, initialPos: new THREE.Vector3(-0.25, 0.05, 0),  targetPos: new THREE.Vector3(-0.13, 0.04, -0.03) },
-            { id: 'occipital',  name: '枕骨',      description: '構成顱骨的後部和底部。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/occipital_bone.stl',   scale: masterScale, initialPos: new THREE.Vector3(0, -0.04, -0.2),    targetPos: new THREE.Vector3(0.00, -0.03, -0.17) },
-            { id: 'maxilla_l',  name: '左上頷骨',  description: '構成上顎的主要部分。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/maxilla_01.stl',     scale: masterScale, initialPos: new THREE.Vector3(0.1, -0.03, 0.15),  targetPos: new THREE.Vector3(-0.03, -0.06, 0.13) },
-            { id: 'maxilla_r',  name: '右上頷骨',  description: '構成上顎的主要部分。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/maxilla_02.stl',     scale: masterScale, initialPos: new THREE.Vector3(-0.1, -0.03, 0.15),  targetPos: new THREE.Vector3(0.03, -0.06, 0.13) },
-            { id: 'cheek_l',    name: '左顴骨',    description: '構成臉頰的突出部分。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/cheekbones_01.stl',  scale: masterScale, initialPos: new THREE.Vector3(0.15, 0.02, 0.1),  targetPos: new THREE.Vector3(0.08, -0.04, 0.15) },
-            { id: 'cheek_r',    name: '右顴骨',    description: '構成臉頰的突出部分。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/cheekbones_02.stl',  scale: masterScale, initialPos: new THREE.Vector3(-0.15, 0.02, 0.1),  targetPos: new THREE.Vector3(-0.08, -0.04, 0.15) },
-            { id: 'mandible',   name: '下頷骨',    description: '構成下顎，是顱骨中唯一可動的骨骼。',   modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/mandible.stl',   scale: masterScale, initialPos: new THREE.Vector3(0, -0.15, 0.1),    targetPos: new THREE.Vector3(0.00, -0.14, 0.09) },
-            { id: 'sphenoid',   name: '蝶骨',      description: '位於顱底中部，形狀像蝴蝶。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/sphenoid_bone.stl',   scale: masterScale, initialPos: new THREE.Vector3(0.0, 0.20, -0.25), targetPos: new THREE.Vector3(0.00, 0.01, -0.09) },
-            { id: 'ethmoid',    name: '篩骨',      description: '位於兩眼眶之間，構成鼻腔頂部。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull/ethmoid_bone.stl',    scale: masterScale, initialPos: new THREE.Vector3(0.0, 0.10, -0.25), targetPos: new THREE.Vector3(0.00, -0.01, -0.10) },
+            { id: 'parietal_l', name: '左頂骨', description: '構成顱頂和側面的骨骼。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/parietal_bone_01.stl', scale: masterScale, initialPos: new THREE.Vector3(0.15, 0.18, 0), targetPos: new THREE.Vector3(0.04, 0.145, 0.01) },
+            { id: 'frontal', name: '額骨', description: '構成前額的骨骼。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/Frontal_bone.stl', scale: masterScale, initialPos: new THREE.Vector3(0, 0.20, 0.1), targetPos: new THREE.Vector3(0.00, 0.13, 0.09) },
+            { id: 'parietal_r', name: '右頂骨', description: '構成顱頂和側面的骨骼。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/parietal_bone_02.stl', scale: masterScale, initialPos: new THREE.Vector3(-0.15, 0.18, 0), targetPos: new THREE.Vector3(-0.04, 0.145, 0.01) },
+            
+            { id: 'temporal_l', name: '左顳骨', description: '位於顱骨兩側，保護聽覺器官。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/Temporal_bone01.stl', scale: masterScale, initialPos: new THREE.Vector3(0.25, 0.05, 0), targetPos: new THREE.Vector3(0.05, 0.08, 0.03) },
+            { id: 'cheek_l', name: '左顴骨', description: '構成臉頰的突出部分。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/cheekbones_01.stl', scale: masterScale, initialPos: new THREE.Vector3(0.15, 0.02, 0.1), targetPos: new THREE.Vector3(0.06, 0.07, 0.08) },
+            { id: 'maxilla_l', name: '左上頷骨', description: '構成上顎的主要部分。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/maxilla_01.stl', scale: masterScale, initialPos: new THREE.Vector3(0.1, -0.03, 0.15), targetPos: new THREE.Vector3(0.03, 0.05, 0.11) },
+            
+            { id: 'maxilla_r', name: '右上頷骨', description: '構成上顎的主要部分。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/maxilla_02.stl', scale: masterScale, initialPos: new THREE.Vector3(-0.1, -0.03, 0.15), targetPos: new THREE.Vector3(-0.03, 0.05, 0.11) },
+            { id: 'cheek_r', name: '右顴骨', description: '構成臉頰的突出部分。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/cheekbones_02.stl', scale: masterScale, initialPos: new THREE.Vector3(-0.15, 0.02, 0.1), targetPos: new THREE.Vector3(-0.06, 0.07, 0.08) },
+            { id: 'temporal_r', name: '右顳骨', description: '位於顱骨兩側，保護聽覺器官。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/Temporal_bone02.stl', scale: masterScale, initialPos: new THREE.Vector3(-0.25, 0.05, 0), targetPos: new THREE.Vector3(-0.05, 0.08, 0.03) },
+
+            { id: 'occipital', name: '枕骨', description: '構成顱骨的後部和底部。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/occipital_bone.stl', scale: masterScale, initialPos: new THREE.Vector3(0, -0.04, -0.2), targetPos: new THREE.Vector3(0.00, 0.08, -0.06) },
+            
+            { id: 'mandible', name: '下頷骨', description: '構成下顎，是顱骨中唯一可動的骨骼。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/mandible.stl', scale: masterScale, initialPos: new THREE.Vector3(0, -0.15, 0.1), targetPos: new THREE.Vector3(0.00, -0.02, 0.08) },
+            
+            { id: 'sphenoid', name: '蝶骨', description: '位於顱底中部，形狀像蝴蝶。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/sphenoid_bone.stl', scale: masterScale, initialPos: new THREE.Vector3(0.0, 0.35, -0.25), targetPos: new THREE.Vector3(0.00, 0.06, -0.03) },
+            { id: 'ethmoid', name: '篩骨', description: '位於兩眼眶之間，構成鼻腔頂部。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/ethmoid_bone.stl', scale: masterScale, initialPos: new THREE.Vector3(0.0, 0.25, -0.25), targetPos: new THREE.Vector3(0.00, 0.07, -0.02) },
         ];
         
         startButton.addEventListener('click', () => {
@@ -140,7 +147,7 @@
         function init() {
             scene = new THREE.Scene();
             
-            const backgroundUrl = "https://cdn.jsdelivr.net/gh/gp01002-code/Skeleton-/background.jpg";
+            const backgroundUrl = "https://cdn.jsdelivr.net/gh/gp01002-code/Skeleton-/YOUR_IMAGE_URL_HERE.jpg";
             
             new THREE.TextureLoader().load(backgroundUrl, 
                 (texture) => {
@@ -218,12 +225,30 @@
             renderer.xr.addEventListener('sessionend', onVRSessionEnd);
         }
 
-        function onVRSessionStart() { infoPanelHTML.style.display = 'none'; controls.enabled = false; playerRig.position.set(0, 0.02, 0.5); }
-        function onVRSessionEnd() { infoPanelHTML.style.display = 'block'; controls.enabled = true; playerRig.position.set(0, 0, 0); camera.position.set(0, 0.1, 0.8); controls.target.copy(referencePosition); controls.update(); }
+        function onVRSessionStart() {
+            infoPanelHTML.style.display = 'none';
+            controls.enabled = false;
+            playerRig.position.set(0, 0.02, 0.5);
+        }
+
+        function onVRSessionEnd() {
+            infoPanelHTML.style.display = 'block';
+            controls.enabled = true;
+            playerRig.position.set(0, 0, 0);
+            camera.position.set(0, 0.1, 0.8);
+            controls.target.copy(referencePosition);
+            controls.update();
+        }
 
         function createGroundPlane() {
             const groundGeometry = new THREE.CircleGeometry(5, 64);
-            const ground = new Reflector(groundGeometry, { clipBias: 0.003, textureWidth: window.innerWidth * window.devicePixelRatio, textureHeight: window.innerHeight * window.devicePixelRatio, color: 0x333333, recursion: 1 });
+            const ground = new Reflector(groundGeometry, {
+                clipBias: 0.003,
+                textureWidth: window.innerWidth * window.devicePixelRatio,
+                textureHeight: window.innerHeight * window.devicePixelRatio,
+                color: 0x333333,
+                recursion: 1
+            });
             ground.position.y = -0.2; 
             ground.rotation.x = -Math.PI / 2;
             scene.add(ground);
@@ -232,7 +257,8 @@
         function createVRInfoPanel() {
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
-            canvas.width = 512; canvas.height = 200; 
+            canvas.width = 512;
+            canvas.height = 200; 
             const texture = new THREE.CanvasTexture(canvas);
             const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, side: THREE.DoubleSide });
             const geometry = new THREE.PlaneGeometry(0.2, 0.078); 
@@ -244,35 +270,70 @@
         }
 
         function updateVRInfoPanel(bone, time) {
-            if (!vrInfoPanel || !renderer.xr.isPresenting) { if(vrInfoPanel) vrInfoPanel.visible = false; return; }
+            if (!vrInfoPanel || !renderer.xr.isPresenting) {
+                if(vrInfoPanel) vrInfoPanel.visible = false;
+                return;
+            }
             vrInfoPanel.visible = true;
             const context = vrInfoPanel.userData.context;
             const texture = vrInfoPanel.userData.texture;
-            context.fillStyle = 'rgba(0, 0, 0, 0.7)'; context.fillRect(0, 0, 512, 200);
-            context.fillStyle = 'white'; context.font = 'bold 24px sans-serif'; context.fillText('3D 頭骨拼圖', 10, 30);
-            context.font = '24px monospace'; context.fillText(`時間: ${time}`, 350, 30);
+            context.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            context.fillRect(0, 0, 512, 200);
+            context.fillStyle = 'white';
+            context.font = 'bold 24px sans-serif';
+            context.fillText('3D 頭骨拼圖', 10, 30);
+            context.font = '24px monospace';
+            context.fillText(`時間: ${time}`, 350, 30);
+            
             if (bone) {
-                context.fillStyle = '#00ffff'; context.font = 'bold 30px sans-serif'; context.fillText(bone.name, 10, 85);
-                context.fillStyle = '#a0aec0'; context.font = '22px sans-serif';
-                const words = bone.description.split(''); let line = ''; let y = 125;
+                context.fillStyle = '#00ffff';
+                context.font = 'bold 30px sans-serif';
+                context.fillText(bone.name, 10, 85);
+                context.fillStyle = '#a0aec0';
+                context.font = '22px sans-serif';
+                const words = bone.description.split('');
+                let line = '';
+                let y = 125;
                 for(let n = 0; n < words.length; n++) {
-                    const testLine = line + words[n]; const metrics = context.measureText(testLine); const testWidth = metrics.width;
-                    if (testWidth > 490 && n > 0) { context.fillText(line, 10, y); line = words[n]; y += 25; } else { line = testLine; }
+                    const testLine = line + words[n];
+                    const metrics = context.measureText(testLine);
+                    const testWidth = metrics.width;
+                    if (testWidth > 490 && n > 0) {
+                        context.fillText(line, 10, y);
+                        line = words[n];
+                        y += 25;
+                    } else {
+                        line = testLine;
+                    }
                 }
                 context.fillText(line, 10, y);
-            } else { context.fillStyle = '#00ffff'; context.font = 'bold 30px sans-serif'; context.fillText('指向骨骼...', 10, 85); }
+
+            } else {
+                 context.fillStyle = '#00ffff';
+                context.font = 'bold 30px sans-serif';
+                context.fillText('指向骨骼...', 10, 85);
+            }
             texture.needsUpdate = true;
         }
 
-        function onSqueeze(event) { if (completionMessage.style.display === 'flex') { resetGame(); } }
+        function onSqueeze(event) {
+            if (completionMessage.style.display === 'flex') {
+                resetGame();
+            }
+        }
 
         function onSelectStart(event) {
-            if (completionMessage.style.display === 'flex') { resetGame(); return; }
+            if (completionMessage.style.display === 'flex') {
+                resetGame();
+                return;
+            }
             if (!startTime) startTimer();
             const controller = event.target;
-            const state = controllerStates[controller.name];
+            const controllerName = controller.name;
+            const state = controllerStates[controllerName];
+            const otherControllerName = controllerName === 'controller1' ? 'controller2' : 'controller1';
+            const otherState = controllerStates[otherControllerName];
             if (state.intersectedObject && !state.intersectedObject.userData.placed) {
-                const otherState = controllerStates[controller.name === 'controller1' ? 'controller2' : 'controller1'];
                 if (otherState.selectedObject !== state.intersectedObject) {
                     state.selectedObject = state.intersectedObject;
                     state.initialRotation.copy(state.selectedObject.quaternion);
@@ -284,7 +345,8 @@
 
         function onSelectEnd(event) {
             const controller = event.target;
-            const state = controllerStates[controller.name];
+            const controllerName = controller.name;
+            const state = controllerStates[controllerName];
             if (state.selectedObject) {
                 scene.attach(state.selectedObject);
                 const targetPos = state.selectedObject.userData.targetPos;
@@ -293,7 +355,9 @@
                     state.selectedObject.position.copy(targetPos);
                     state.selectedObject.quaternion.copy(correctTargetRot);
                     state.selectedObject.userData.placed = true;
-                    if (state.selectedObject.material) { state.selectedObject.material.color.set(0x50c878); }
+                    if (state.selectedObject.material) {
+                        state.selectedObject.material.color.set(0x50c878);
+                    }
                     placedCount++;
                     checkCompletion();
                     vibrate(controller, 1.0, 200);
@@ -306,25 +370,39 @@
         }
         
         function setupVRControllers() {
-            controller1 = renderer.xr.getController(0); controller1.name = 'controller1';
-            controller1.addEventListener('selectstart', onSelectStart); controller1.addEventListener('selectend', onSelectEnd);
-            controller1.addEventListener('squeeze', onSqueeze); playerRig.add(controller1);
-            controller2 = renderer.xr.getController(1); controller2.name = 'controller2';
-            controller2.addEventListener('selectstart', onSelectStart); controller2.addEventListener('selectend', onSelectEnd);
-            controller2.addEventListener('squeeze', onSqueeze); playerRig.add(controller2);
+            controller1 = renderer.xr.getController(0);
+            controller1.name = 'controller1';
+            controller1.addEventListener('selectstart', onSelectStart);
+            controller1.addEventListener('selectend', onSelectEnd);
+            controller1.addEventListener('squeeze', onSqueeze);
+            playerRig.add(controller1);
+
+            controller2 = renderer.xr.getController(1);
+            controller2.name = 'controller2';
+            controller2.addEventListener('selectstart', onSelectStart);
+            controller2.addEventListener('selectend', onSelectEnd);
+            controller2.addEventListener('squeeze', onSqueeze);
+            playerRig.add(controller2);
+
             const lineGeometry = new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1) ]);
             const lineMaterial = new THREE.LineBasicMaterial({ color: 0x00ff00 });
-            const line1 = new THREE.Line(lineGeometry, lineMaterial.clone()); line1.scale.z = 2; controller1.add(line1);
+            const line1 = new THREE.Line(lineGeometry, lineMaterial.clone());
+            line1.scale.z = 2; 
+            controller1.add(line1);
             controllerStates.controller1.line = line1;
-            const line2 = new THREE.Line(lineGeometry, lineMaterial.clone()); line2.scale.z = 2; controller2.add(line2);
+            const line2 = new THREE.Line(lineGeometry, lineMaterial.clone());
+            line2.scale.z = 2; 
+            controller2.add(line2);
             controllerStates.controller2.line = line2;
         }
 
         function vibrate(controller, intensity = 0.5, duration = 100) {
             const session = renderer.xr.getSession();
             if (!session || !session.inputSources) return;
+            
             const handedness = (controller.name === 'controller1') ? 'left' : 'right';
             const source = Array.from(session.inputSources).find(s => s.handedness === handedness);
+
             if (source && source.gamepad && source.gamepad.hapticActuators && source.gamepad.hapticActuators.length > 0) {
                 source.gamepad.hapticActuators[0].pulse(intensity, duration);
             }
@@ -337,8 +415,12 @@
             raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
             return raycaster.intersectObjects(draggableObjects, true);
         }
-
-        function modelLoaded() { modelsToLoad--; if (modelsToLoad <= 0) { loadingOverlay.style.display = 'none'; } }
+        function modelLoaded() {
+            modelsToLoad--;
+            if (modelsToLoad <= 0) {
+                loadingOverlay.style.display = 'none';
+            }
+        }
 
         function loadSkullReference() {
             const loader = new STLLoader();
@@ -389,26 +471,43 @@
                         modelLoaded();
                     }, 
                     undefined, 
-                    (error) => { console.error(`無法載入模型: ${def.id}`, error); modelLoaded(); }
+                    (error) => { 
+                        console.error(`無法載入模型: ${def.id}`, error);
+                        modelLoaded();
+                    }
                 );
             });
         }
-
         function setupBone(mesh, def) {
             mesh.position.copy(def.initialPos);
-            mesh.userData = { id: def.id, name: def.name, description: def.description, type: 'draggable', placed: false, initialPos: def.initialPos.clone(), targetPos: def.targetPos };
-            const hitbox = new THREE.Mesh( new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ visible: false, wireframe: true }) );
+            mesh.userData = { 
+                id: def.id, 
+                name: def.name, 
+                description: def.description, 
+                type: 'draggable', 
+                placed: false, 
+                initialPos: def.initialPos.clone(), 
+                targetPos: def.targetPos
+            };
+            
+            const hitbox = new THREE.Mesh(
+                new THREE.BoxGeometry(1, 1, 1),
+                new THREE.MeshBasicMaterial({ visible: false, wireframe: true })
+            );
             const bbox = new THREE.Box3().setFromObject(mesh);
             const size = bbox.getSize(new THREE.Vector3());
             hitbox.scale.copy(size).multiplyScalar(1.2); 
             mesh.add(hitbox);
+
             scene.add(mesh);
             draggableObjects.push(mesh);
             bonesData.push(mesh);
         }
-
-        function onWindowResize() { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
-
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
         function updatePointerPosition(event) {
             const pointer = event.touches ? event.touches[0] : event;
             mouse.x = (pointer.clientX / window.innerWidth) * 2 - 1;
@@ -428,9 +527,14 @@
                 if (object.userData.type === 'draggable' && !object.userData.placed) {
                     selectedObject = object;
                     controls.enabled = false;
-                    if (selectedObject.material) { selectedObject.userData.originalColor = selectedObject.material.color.getHex(); selectedObject.material.color.set(0xffff00); }
+                    if (selectedObject.material) {
+                        selectedObject.userData.originalColor = selectedObject.material.color.getHex();
+                        selectedObject.material.color.set(0xffff00);
+                    }
                     plane.setFromNormalAndCoplanarPoint(camera.getWorldDirection(plane.normal), selectedObject.position);
-                    if (raycaster.ray.intersectPlane(plane, intersection)) { offset.copy(selectedObject.position).sub(intersection); }
+                    if (raycaster.ray.intersectPlane(plane, intersection)) {
+                        offset.copy(selectedObject.position).sub(intersection);
+                    }
                 }
             }
         }
@@ -442,31 +546,45 @@
             raycaster.setFromCamera(mouse, camera);
             let foundBone = null;
             if (selectedObject) {
-                if (raycaster.ray.intersectPlane(plane, intersection)) { selectedObject.position.copy(intersection).add(offset); }
+                if (raycaster.ray.intersectPlane(plane, intersection)) {
+                    selectedObject.position.copy(intersection).add(offset);
+                }
                 foundBone = selectedObject.userData;
             } else {
                 const intersects = raycaster.intersectObjects(draggableObjects, true);
                 if (intersects.length > 0) {
                     let object = intersects[0].object;
                     while (object.parent && !object.userData.type) object = object.parent;
-                    if (object.userData.name && !object.userData.placed) { foundBone = object.userData; }
+                    if (object.userData.name && !object.userData.placed) {
+                        foundBone = object.userData;
+                    }
                 }
             }
-            if (foundBone) { boneNameText.textContent = foundBone.name; boneDescriptionText.textContent = foundBone.description;
-            } else { boneNameText.textContent = '指向一塊骨骼以查看資訊。'; boneDescriptionText.textContent = ''; }
+            if (foundBone) {
+                boneNameText.textContent = foundBone.name;
+                boneDescriptionText.textContent = foundBone.description;
+            } else {
+                boneNameText.textContent = '指向一塊骨骼以查看資訊。';
+                boneDescriptionText.textContent = '';
+            }
         }
 
         function onPointerUp(event) {
              if (renderer.xr.isPresenting) return;
             if (selectedObject) {
-                if (selectedObject.material && selectedObject.userData.originalColor) { selectedObject.material.color.setHex(selectedObject.userData.originalColor); delete selectedObject.userData.originalColor; }
+                if (selectedObject.material && selectedObject.userData.originalColor) {
+                    selectedObject.material.color.setHex(selectedObject.userData.originalColor);
+                    delete selectedObject.userData.originalColor;
+                }
                 const targetPos = selectedObject.userData.targetPos;
                 const distance = selectedObject.position.distanceTo(targetPos);
                 if (distance < snapDistance) {
                     selectedObject.position.copy(targetPos);
                     selectedObject.quaternion.copy(correctTargetRot);
                     selectedObject.userData.placed = true;
-                    if (selectedObject.material) { selectedObject.material.color.set(0x50c878); }
+                    if (selectedObject.material) {
+                        selectedObject.material.color.set(0x50c878);
+                    }
                     placedCount++;
                     checkCompletion();
                 } else {
@@ -481,55 +599,73 @@
             if (placedCount >= boneDefinitions.length) {
                 stopTimer();
                 completionMessage.style.display = 'flex';
-                if (renderer.xr.isPresenting) { if (controller1) vibrate(controller1, 1.0, 500); if (controller2) vibrate(controller2, 1.0, 500); }
+                if (renderer.xr.isPresenting) {
+                    if (controller1) vibrate(controller1, 1.0, 500);
+                    if (controller2) vibrate(controller2, 1.0, 500);
+                }
                 animateCompletion();
             }
         }
-
         function animateCompletion() {
-            let glowIntensity = 0; let increasing = true;
+            let glowIntensity = 0;
+            let increasing = true;
             const glowAnimation = setInterval(() => {
-                if (increasing) { glowIntensity += 0.02; if (glowIntensity >= 0.5) increasing = false; } 
-                else { glowIntensity -= 0.02; if (glowIntensity <= 0) { clearInterval(glowAnimation); return; } }
-                draggableObjects.forEach(obj => { if (obj.material) obj.material.emissiveIntensity = glowIntensity; });
+                if (increasing) {
+                    glowIntensity += 0.02;
+                    if (glowIntensity >= 0.5) increasing = false;
+                } else {
+                    glowIntensity -= 0.02;
+                    if (glowIntensity <= 0) { clearInterval(glowAnimation); return; }
+                }
+                draggableObjects.forEach(obj => {
+                    if (obj.material) obj.material.emissiveIntensity = glowIntensity;
+                });
             }, 50);
         }
-
         function startTimer() { startTime = Date.now(); timerInterval = setInterval(updateTimerDisplay, 1000); }
         function stopTimer() { clearInterval(timerInterval); }
-        function resetTimer() { stopTimer(); startTime = null; timerText.textContent = "時間: 00:00"; }
-
+        function resetTimer() {
+            stopTimer();
+            startTime = null;
+            timerText.textContent = "時間: 00:00";
+        }
         function updateTimerDisplay() {
             if (!startTime) return;
             const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
             const minutes = Math.floor(elapsedTime / 60).toString().padStart(2, '0');
             const seconds = (elapsedTime % 60).toString().padStart(2, '0');
-            timerText.textContent = `時間: ${minutes}:${seconds}`;
+            const timeString = `${minutes}:${seconds}`;
+            timerText.textContent = `時間: ${timeString}`;
         }
-
         function resetGame() {
             completionMessage.style.display = 'none';
             resetTimer();
             placedCount = 0;
             boneNameText.textContent = '指向一塊骨骼以查看資訊。';
             boneDescriptionText.textContent = '';
+
             Object.keys(controllerStates).forEach(key => {
                 const state = controllerStates[key];
-                state.intersectedObject = null; state.selectedObject = null;
+                state.intersectedObject = null;
+                state.selectedObject = null;
                 if (state.line && state.line.material) state.line.material.color.set(0x00ff00);
             });
             bonesData.forEach(bone => {
                 bone.userData.placed = false;
                 bone.position.copy(bone.userData.initialPos);
                 bone.quaternion.copy(correctTargetRot); 
-                if (bone.material) { bone.material.color.set(0xebe5d1); }
+                if (bone.material) {
+                    bone.material.color.set(0xebe5d1);
+                }
             });
         }
         
         function handleController(controller, controllerName) {
             if (!controller) return;
             const state = controllerStates[controllerName];
-            if (state.selectedObject) { return; };
+            if (state.selectedObject) {
+                return;
+            };
 
             const intersections = getIntersections(controller);
             const line = state.line;
@@ -579,7 +715,10 @@
                         if (moveZ !== 0 || moveX !== 0) {
                             const forward = new THREE.Vector3(0,0,-1).applyQuaternion(xrCamera.quaternion);
                             const right = new THREE.Vector3(1,0,0).applyQuaternion(xrCamera.quaternion);
-                            forward.y = 0; right.y = 0; forward.normalize(); right.normalize();
+                            forward.y = 0;
+                            right.y = 0;
+                            forward.normalize();
+                            right.normalize();
                             playerRig.position.add(forward.multiplyScalar(-moveZ * VR_MOVEMENT_SPEED * delta));
                             playerRig.position.add(right.multiplyScalar(moveX * VR_MOVEMENT_SPEED * delta));
                         }
@@ -588,10 +727,11 @@
                 if (source.gamepad && source.handedness === 'right') {
                    const axes = source.gamepad.axes;
                     if (axes.length >= 4) {
-                       const dollyZ = Math.abs(axes[3]) > 0.1 ? axes[3] : 0;
-                        if (dollyZ !== 0) {
+                        const dollyZ = Math.abs(axes[3]) > 0.1 ? axes[3] : 0;
+                         if (dollyZ !== 0) {
                             const forward = new THREE.Vector3(0,0,-1).applyQuaternion(xrCamera.quaternion);
-                            forward.y = 0; forward.normalize();
+                            forward.y = 0;
+                            forward.normalize();
                             playerRig.position.add(forward.multiplyScalar(-dollyZ * VR_ZOOM_SPEED * delta));
                         }
                    }
@@ -601,7 +741,10 @@
         
         function animate() {
             const delta = clock.getDelta();
-            if (!renderer.xr.isPresenting) { controls.update(); }
+            
+            if (!renderer.xr.isPresenting) {
+                controls.update();
+            }
             
             if (renderer.xr.isPresenting) {
                 handleController(controller1, 'controller1');
@@ -613,8 +756,10 @@
                 const time = timerText.textContent.replace('時間: ','');
                 updateVRInfoPanel(bone, time);
             }
+            
             renderer.render(scene, camera);
         }
+
     </script>
 </body>
 </html>
