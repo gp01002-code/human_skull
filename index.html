@@ -118,9 +118,9 @@
 
         // --- BONE LIST ---
         const boneDefinitions = [
-            { id: 'parietal_l', name: '左頂骨', description: '構成顱頂和側面的骨骼。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/parietal_bone_01.stl', scale: masterScale, initialPos: new THREE.Vector3(0.15, 0.18, 0), targetPos: new THREE.Vector3(0.04, 0.145, 0.04) },
+            { id: 'parietal_l', name: '左頂骨', description: '構成顱頂和側面的骨骼。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/parietal_bone_01.stl', scale: masterScale, initialPos: new THREE.Vector3(0.15, 0.18, 0), targetPos: new THREE.Vector3(0.04, 0.145, 0.02) },
             { id: 'frontal', name: '額骨', description: '構成前額的骨骼。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/Frontal_bone.stl', scale: masterScale, initialPos: new THREE.Vector3(0, 0.20, 0.1), targetPos: new THREE.Vector3(0.00, 0.15, 0.10) },
-            { id: 'parietal_r', name: '右頂骨', description: '構成顱頂和側面的骨骼。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/parietal_bone_02.stl', scale: masterScale, initialPos: new THREE.Vector3(-0.15, 0.18, 0), targetPos: new THREE.Vector3(-0.04, 0.145, 0.04) },
+            { id: 'parietal_r', name: '右頂骨', description: '構成顱頂和側面的骨骼。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/parietal_bone_02.stl', scale: masterScale, initialPos: new THREE.Vector3(-0.15, 0.18, 0), targetPos: new THREE.Vector3(-0.04, 0.145, 0.02) },
             
             { id: 'temporal_l', name: '左顳骨', description: '位於顱骨兩側，保護聽覺器官。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/Temporal_bone01.stl', scale: masterScale, initialPos: new THREE.Vector3(0.25, 0.05, 0), targetPos: new THREE.Vector3(0.05, 0.08, 0.02) },
             { id: 'cheek_l', name: '左顴骨', description: '構成臉頰的突出部分。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/cheekbones_01.stl', scale: masterScale, initialPos: new THREE.Vector3(0.15, 0.02, 0.1), targetPos: new THREE.Vector3(0.06, 0.06, 0.074) },
@@ -130,16 +130,16 @@
             { id: 'cheek_r', name: '右顴骨', description: '構成臉頰的突出部分。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/cheekbones_02.stl', scale: masterScale, initialPos: new THREE.Vector3(-0.15, 0.02, 0.1), targetPos: new THREE.Vector3(-0.06, 0.06, 0.074) },
             { id: 'temporal_r', name: '右顳骨', description: '位於顱骨兩側，保護聽覺器官。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/Temporal_bone02.stl', scale: masterScale, initialPos: new THREE.Vector3(-0.25, 0.05, 0), targetPos: new THREE.Vector3(-0.05, 0.08, 0.02) },
 
-            { id: 'occipital', name: '枕骨', description: '構成顱骨的後部和底部。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/occipital_bone.stl', scale: masterScale, initialPos: new THREE.Vector3(0, -0.04, -0.2), targetPos: new THREE.Vector3(0.00, 0.09, -0.015) },
+            { id: 'occipital', name: '枕骨', description: '構成顱骨的後部和底部。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/occipital_bone.stl', scale: masterScale, initialPos: new THREE.Vector3(0, -0.04, -0.2), targetPos: new THREE.Vector3(0.00, 0.09, -0.02) },
             
-            { id: 'mandible', name: '下頷骨', description: '構成下顎，是顱骨中唯一可動的骨骼。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/mandible.stl', scale: masterScale, initialPos: new THREE.Vector3(0, -0.15, 0.1), targetPos: new THREE.Vector3(0.00, -0.01, 0.07) },
+            { id: 'mandible', name: '下頷骨', description: '構成下顎，是顱骨中唯一可動的骨骼。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/mandible.stl', scale: masterScale, initialPos: new THREE.Vector3(0, -0.15, 0.1), targetPos: new THREE.Vector3(0.00, -0.01, 0.08) },
             
             { id: 'sphenoid', name: '蝶骨', description: '位於顱底中部，形狀像蝴蝶。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/sphenoid_bone.stl', scale: masterScale, initialPos: new THREE.Vector3(0.0, 0.35, -0.25), targetPos: new THREE.Vector3(0.00, 0.06, -0.03) },
             { id: 'ethmoid', name: '篩骨', description: '位於兩眼眶之間，構成鼻腔頂部。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/ethmoid_bone.stl', scale: masterScale, initialPos: new THREE.Vector3(0.0, 0.25, -0.25), targetPos: new THREE.Vector3(0.00, 0.07, -0.02) },
             
             // Added Teeth
-            { id: 'maxillary_teeth', name: '上顎齒', description: '位於上頷骨的牙齒。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/maxillary_teeth.stl', scale: masterScale, initialPos: new THREE.Vector3(0.1, -0.15, 0.2), targetPos: new THREE.Vector3(0.00, 0.015, 0.08) },
-            { id: 'mandible_teeth', name: '下顎齒', description: '位於下頷骨的牙齒。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/mandible_teeth.stl', scale: masterScale, initialPos: new THREE.Vector3(-0.1, -0.15, 0.2), targetPos: new THREE.Vector3(0.00, -0.02, 0.08) },
+            { id: 'maxillary_teeth', name: '上顎齒', description: '位於上頷骨的牙齒。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/maxillary_teeth.stl', scale: masterScale, initialPos: new THREE.Vector3(0.1, -0.15, 0.2), targetPos: new THREE.Vector3(0.00, 0.015, 0.09) },
+            { id: 'mandible_teeth', name: '下顎齒', description: '位於下頷骨的牙齒。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/mandible_teeth.stl', scale: masterScale, initialPos: new THREE.Vector3(-0.1, -0.15, 0.2), targetPos: new THREE.Vector3(0.00, -0.02, 0.09) },
         ];
         
         startButton.addEventListener('click', () => {
@@ -767,3 +767,5 @@
     </script>
 </body>
 </html>
+
+
