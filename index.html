@@ -34,8 +34,8 @@
     <div id="loading-overlay" class="absolute inset-0 z-30 flex items-center justify-center bg-black bg-opacity-70 text-white">
         <p class="text-2xl">模型載入中...</p>
     </div>
-    <!-- Updated background image URL to user's GitHub file -->
-    <div id="start-screen" class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-gray-900 text-white text-center bg-cover bg-center" style="display: flex; background-image: url('https://cdn.jsdelivr.net/gh/gp01002-code/Skeleton-/YOUR_IMAGE_URL_HERE.jpg');">
+    <!-- 更新了背景圖片 URL 以使用您 GitHub 上的檔案 -->
+    <div id="start-screen" class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-gray-900 text-white text-center bg-cover bg-center" style="display: flex; background-image: url('https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/YOUR_IMAGE_URL_HERE.png');">
         <div class="absolute inset-0 bg-black opacity-50"></div>
         <div class="relative z-10">
             <h1 class="text-5xl font-bold mb-4" style="text-shadow: 2px 2px 8px rgba(0,0,0,0.7);">3D Skull Puzzle Game</h1>
@@ -132,14 +132,14 @@
 
             { id: 'occipital', name: '枕骨', description: '構成顱骨的後部和底部。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/occipital_bone.stl', scale: masterScale, initialPos: new THREE.Vector3(0, -0.04, -0.2), targetPos: new THREE.Vector3(0.00, 0.09, -0.02) },
             
-            { id: 'mandible', name: '下頷骨', description: '構成下顎，是顱骨中唯一可動的骨骼。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/mandible.stl', scale: masterScale, initialPos: new THREE.Vector3(0, -0.15, 0.1), targetPos: new THREE.Vector3(0.00, -0.01, 0.08) },
+            { id: 'mandible', name: '下頷骨', description: '構成下顎，是顱骨中唯一可動的骨骼。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/mandible.stl', scale: masterScale, initialPos: new THREE.Vector3(0, -0.15, 0.1), targetPos: new THREE.Vector3(0.00, 0.00, 0.07) },
             
             { id: 'sphenoid', name: '蝶骨', description: '位於顱底中部，形狀像蝴蝶。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/sphenoid_bone.stl', scale: masterScale, initialPos: new THREE.Vector3(0.0, 0.35, -0.25), targetPos: new THREE.Vector3(0.00, 0.06, -0.03) },
             { id: 'ethmoid', name: '篩骨', description: '位於兩眼眶之間，構成鼻腔頂部。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/ethmoid_bone.stl', scale: masterScale, initialPos: new THREE.Vector3(0.0, 0.25, -0.25), targetPos: new THREE.Vector3(0.00, 0.07, -0.02) },
             
             // Added Teeth
             { id: 'maxillary_teeth', name: '上顎齒', description: '位於上頷骨的牙齒。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/maxillary_teeth.stl', scale: masterScale, initialPos: new THREE.Vector3(0.1, -0.15, 0.2), targetPos: new THREE.Vector3(0.00, 0.015, 0.10) },
-            { id: 'mandible_teeth', name: '下顎齒', description: '位於下頷骨的牙齒。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/mandible_teeth.stl', scale: masterScale, initialPos: new THREE.Vector3(-0.1, -0.15, 0.2), targetPos: new THREE.Vector3(0.00, -0.02, 0.10) },
+            { id: 'mandible_teeth', name: '下顎齒', description: '位於下頷骨的牙齒。', modelUrl: 'https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/mandible_teeth.stl', scale: masterScale, initialPos: new THREE.Vector3(-0.1, -0.15, 0.2), targetPos: new THREE.Vector3(0.00, -0.01, 0.09) },
         ];
         
         startButton.addEventListener('click', () => {
@@ -151,7 +151,7 @@
         function init() {
             scene = new THREE.Scene();
             
-            const backgroundUrl = "https://cdn.jsdelivr.net/gh/gp01002-code/Skeleton-/YOUR_IMAGE_URL_HERE.jpg";
+            const backgroundUrl = "https://cdn.jsdelivr.net/gh/gp01002-code/human_skull@main/YOUR_IMAGE_URL_HERE.png";
             
             new THREE.TextureLoader().load(backgroundUrl, 
                 (texture) => {
